@@ -8,6 +8,9 @@ var grid = [];
 // Current cell
 var current;
 
+// Create the stack
+var stack = [];
+
 function setup() {
 	createCanvas(600, 600);
 
@@ -16,7 +19,7 @@ function setup() {
 	rows = floor(height / w);
 
 	// Set the framerate
-	frameRate(5);
+	frameRate(20);
 
 	// Initialize the grid with cell objects
 	for (var j = 0; j < rows; j++) {
@@ -52,11 +55,19 @@ function draw() {
 		// Mark next as visited
 		next.visited = true;
 
+		// Push the current cell to the stack
+		stack.push(current);
+
 		// Remove the walls between current and next
 		removeWalls(current, next);
 
 		// Next cell is now the current cell
 		current = next;
+	} else {
+		// This would mean we got stuck somewhere
+
+		// Pop a cell from the stack and make that the new current cell
+		current = stack.pop();
 	}
 }
 
@@ -68,79 +79,6 @@ function index(i, j) {
 	}
 
 	return i + j * cols;
-}
-
-function Cell(i, j) {
-	this.i = i;
-	this.j = j;
-	this.walls = [true, true, true, true];	// Top, Right, Bottom, Left
-	this.visited = false;
-
-	this.checkNeighbors = function() {
-		var neighbors = [];
-
-		// Get the cell's neighbors
-		var top = grid[index(i, j-1)];
-		var right = grid[index(i+1, j)];
-		var bottom = grid[index(i, j+1)];
-		var left = grid[index(i-1, j)];
-
-		// If the neighbor hasn't been visited, push it to the neighbors array
-		if (top && !top.visited) {
-			neighbors.push(top);
-		}
-		if (right && !right.visited) {
-			neighbors.push(right);
-		}
-		if (bottom && !bottom.visited) {
-			neighbors.push(bottom);
-		}
-		if (left && !left.visited) {
-			neighbors.push(left);
-		}
-
-		// If we have unvisited neighbors, grab a random neighbor
-		if (neighbors.length > 0) {
-			var r = floor(random(0, neighbors.length));
-			return neighbors[r];
-		} else {
-			return undefined;
-		}
-	}
-
-	this.show = function() {
-		var x = this.i * w;
-		var y = this.j * w;
-
-		stroke(255);
-		
-		if (this.walls[0]) {
-			line(x, y, x+w, y);
-		}
-		if (this.walls[1]) {
-			line(x+w, y, x+w, y+w);
-		}
-		if (this.walls[2]) {
-			line(x+w, y+w, x, y+w);
-		}
-		if (this.walls[3]) {
-			line(x, y+w, x, y);
-		}
-
-		if (this.visited) {
-			noStroke();
-			fill(255, 0, 255, 100);
-			rect(x, y, w, w);
-		}
-	}
-
-	this.highlight = function() {
-		var x = this.i * w;
-		var y = this.j * w;
-		noStroke();
-		fill(0, 0, 255, 100);
-		rect(x, y, w, w);
-	}
 }
 
 function removeWalls(a, b) {
