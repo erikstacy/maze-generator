@@ -50,7 +50,7 @@ function draw() {
 	//		one neighbor at random
 	var next = current.checkNeighbors();
 
-	// Visit this next cell
+	// Visit this next cell if it exists
 	if (next) {
 		// Mark next as visited
 		next.visited = true;
